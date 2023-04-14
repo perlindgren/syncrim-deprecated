@@ -1,180 +1,181 @@
 use vizia::fonts::icons_names::{DOWN, MINUS, UP};
 use vizia::prelude::*;
+use vizia::vg::{LineCap, Paint, Path, Solidity};
 
-const STYLE: &str = r#"
+// const STYLE: &str = r#"
 
-    .modal {
-        space: 1s;
-        background-color: white;
-        border-radius: 3px;
-        border-width: 1px;
-        border-color: #999999;
-        outer-shadow: 0 3 10 #00000055;
-        overflow: visible;
-        child-space: 10px;
-    }
+//     .modal {
+//         space: 1s;
+//         background-color: white;
+//         border-radius: 3px;
+//         border-width: 1px;
+//         border-color: #999999;
+//         outer-shadow: 0 3 10 #00000055;
+//         overflow: visible;
+//         child-space: 10px;
+//     }
 
-    modal>popup>label {
-        width: auto;
-        height: auto;
-        space: 5px;
-        child-space: 1s;
-    }
+//     modal>popup>label {
+//         width: auto;
+//         height: auto;
+//         space: 5px;
+//         child-space: 1s;
+//     }
 
-    button {
-        border-radius: 3px;
-        child-space: 1s;
-    }
+//     button {
+//         border-radius: 3px;
+//         child-space: 1s;
+//     }
 
-    hstack {
-        child-space: 1s;
-        col-between: 20px;
-    }
-"#;
+//     hstack {
+//         child-space: 1s;
+//         col-between: 20px;
+//     }
+// "#;
+// cx.add_theme(STYLE);
 
+// AppData { show_modal: false }.build(cx);
+
+// let m1 = Mux::new(cx, 200.0, 200.0);
+// let m2 = Mux::new(cx, 300.0, 200.0);
 fn main() {
     Application::new(|cx| {
-        // cx.add_theme(STYLE);
-
-        // AppData { show_modal: false }.build(cx);
-
-        // let m1 = Mux::new(cx, 200.0, 200.0);
-        // let m2 = Mux::new(cx, 300.0, 200.0);
-
-        let w1 = Wire::new(cx, 200.0, 200.0, 300.0, 200.0);
+        Element::new(cx)
+            .width(Pixels(100.0))
+            .height(Pixels(100.0))
+            .border_color(Color::black())
+            .border_width(Pixels(1.0));
+        let w1 = Wire::new(cx, 10.0, 100.0, 20.0, 100.0);
     })
-    .title("Modal")
     .run();
 }
 
-#[derive(Debug)]
-pub enum AppEvent {
-    ShowModal,
-    HideModal,
-}
+// #[derive(Debug)]
+// pub enum AppEvent {
+//     ShowModal,
+//     HideModal,
+// }
 
-#[derive(Lens)]
-pub struct AppData {
-    show_modal: bool,
-}
+// #[derive(Lens)]
+// pub struct AppData {
+//     show_modal: bool,
+// }
 
-impl Model for AppData {
-    fn event(&mut self, _: &mut EventContext, event: &mut Event) {
-        event.map(|app_event, _| match app_event {
-            AppEvent::ShowModal => {
-                self.show_modal = true;
-            }
-            AppEvent::HideModal => {
-                self.show_modal = false;
-            }
-        });
-    }
-}
+// impl Model for AppData {
+//     fn event(&mut self, _: &mut EventContext, event: &mut Event) {
+//         event.map(|app_event, _| match app_event {
+//             AppEvent::ShowModal => {
+//                 self.show_modal = true;
+//             }
+//             AppEvent::HideModal => {
+//                 self.show_modal = false;
+//             }
+//         });
+//     }
+// }
 
-use std::fmt::{self, Debug, Display};
+// use std::fmt::{self, Debug, Display};
 
-#[derive(Lens, Clone)]
-pub struct Port {}
+// #[derive(Lens, Clone)]
+// pub struct Port {}
 
-#[derive(Debug)]
-pub enum PortEvent {
-    SetData,
-}
+// #[derive(Debug)]
+// pub enum PortEvent {
+//     SetData,
+// }
 
-impl Model for Port {
-    fn event(&mut self, _: &mut EventContext, event: &mut Event) {}
-}
+// impl Model for Port {
+//     fn event(&mut self, _: &mut EventContext, event: &mut Event) {}
+// }
 
-impl Port {
-    pub fn new<'a>(cx: &'a mut Context) -> Handle<'a, Self> {
-        vizia::prelude::View::build(Self {}, cx, |cx| {
-            // Label::new(cx, MINUS).class("icon");
-        })
-        .width(Pixels(10.0))
-        .height(Pixels(10.0))
-    }
-}
+// impl Port {
+//     pub fn new<'a>(cx: &'a mut Context) -> Handle<'a, Self> {
+//         vizia::prelude::View::build(Self {}, cx, |cx| {
+//             // Label::new(cx, MINUS).class("icon");
+//         })
+//         .width(Pixels(10.0))
+//         .height(Pixels(10.0))
+//     }
+// }
 
-impl View for Port {
-    fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
-        let bounds = cx.bounds();
+// impl View for Port {
+//     fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
+//         let bounds = cx.bounds();
 
-        let mut path = Path::new();
+//         let mut path = Path::new();
 
-        let mut paint = Paint::color(Color::black());
-        paint.set_line_width(1.0);
-        // paint.set_line_cap(LineCap::Round);
+//         let mut paint = Paint::color(Color::black());
+//         paint.set_line_width(1.0);
+//         // paint.set_line_cap(LineCap::Round);
 
-        path.move_to(bounds.left(), bounds.top());
-        path.line_to(bounds.right(), bounds.top());
-        path.line_to(bounds.right(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.top());
+//         path.move_to(bounds.left(), bounds.top());
+//         path.line_to(bounds.right(), bounds.top());
+//         path.line_to(bounds.right(), bounds.bottom());
+//         path.line_to(bounds.left(), bounds.bottom());
+//         path.line_to(bounds.left(), bounds.top());
 
-        canvas.stroke_path(&mut path, &paint);
-    }
-}
+//         canvas.stroke_path(&mut path, &paint);
+//     }
+// }
 
-#[derive(Lens, Clone)]
-pub struct Mux {}
+// #[derive(Lens, Clone)]
+// pub struct Mux {}
 
-impl Model for Mux {}
+// impl Model for Mux {}
 
-impl Mux {
-    pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32) -> Handle<'a, Self> {
-        vizia::prelude::View::build(Self {}, cx, |cx| {
-            // left side
-            for i in 0..10 {
-                Port::new(cx)
-                    // .width(Pixels(150.0))
-                    .position_type(PositionType::SelfDirected)
-                    .top(Pixels(20.0 * i as f32))
-                    .left(Pixels(0.0));
-            }
+// impl Mux {
+//     pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32) -> Handle<'a, Self> {
+//         vizia::prelude::View::build(Self {}, cx, |cx| {
+//             // left side
+//             for i in 0..10 {
+//                 Port::new(cx)
+//                     // .width(Pixels(150.0))
+//                     .position_type(PositionType::SelfDirected)
+//                     .top(Pixels(20.0 * i as f32))
+//                     .left(Pixels(0.0));
+//             }
 
-            Port::new(cx)
-                // .width(Pixels(150.0))
-                .position_type(PositionType::SelfDirected)
-                .top(Pixels(100.0))
-                .left(Pixels(40.0));
-        })
-        .position_type(PositionType::SelfDirected)
-        .left(Pixels(x - 20.0))
-        .top(Pixels(y - 100.0))
-        .width(Pixels(40.0))
-        .height(Pixels(200.0))
+//             Port::new(cx)
+//                 // .width(Pixels(150.0))
+//                 .position_type(PositionType::SelfDirected)
+//                 .top(Pixels(100.0))
+//                 .left(Pixels(40.0));
+//         })
+//         .position_type(PositionType::SelfDirected)
+//         .left(Pixels(x - 20.0))
+//         .top(Pixels(y - 100.0))
+//         .width(Pixels(40.0))
+//         .height(Pixels(200.0))
 
-        // .height(Pixels(100.0))
-    }
-}
+//         // .height(Pixels(100.0))
+//     }
+// }
 
-use vizia::vg::{Color, LineCap, Paint, Path, Solidity};
+// impl View for Mux {
+//     fn element(&self) -> Option<&'static str> {
+//         Some("mux")
+//     }
 
-impl View for Mux {
-    fn element(&self) -> Option<&'static str> {
-        Some("mux")
-    }
+//     fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
+//         println!("draw");
 
-    fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
-        println!("draw");
+//         let bounds = cx.bounds();
 
-        let bounds = cx.bounds();
+//         let mut path = Path::new();
 
-        let mut path = Path::new();
+//         let mut paint = Paint::color(Color::black());
+//         // paint.set_line_width(line_width);
+//         // paint.set_line_cap(LineCap::Round);
 
-        let mut paint = Paint::color(Color::black());
-        // paint.set_line_width(line_width);
-        // paint.set_line_cap(LineCap::Round);
+//         path.move_to(bounds.left(), bounds.top());
+//         path.line_to(bounds.right(), bounds.top());
+//         path.line_to(bounds.right(), bounds.bottom());
+//         path.line_to(bounds.left(), bounds.bottom());
+//         path.line_to(bounds.left(), bounds.top());
 
-        path.move_to(bounds.left(), bounds.top());
-        path.line_to(bounds.right(), bounds.top());
-        path.line_to(bounds.right(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.top());
-
-        canvas.stroke_path(&mut path, &paint);
-    }
-}
+//         canvas.stroke_path(&mut path, &paint);
+//     }
+// }
 
 #[derive(Lens, Clone)]
 pub struct Wire {
@@ -194,11 +195,11 @@ impl Wire {
             cx,
             |cx| {},
         )
-        .position_type(PositionType::SelfDirected)
-        .left(Pixels(x1))
-        .top(Pixels(y1 - 1.0))
-        .width(Pixels(x2 - x1))
-        .height(Pixels(3.0))
+        // .position_type(PositionType::SelfDirected)
+        // .left(Pixels(x1))
+        // .top(Pixels(y1 - 1.0))
+        // .width(Pixels(x2 - x1))
+        // .height(Pixels(3.0))
     }
 }
 
@@ -210,22 +211,26 @@ impl View for Wire {
     fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
         let bounds = cx.bounds();
 
+        // let mut path = Path::new();
+
+        // let mut paint = Paint::color(Color::black());
+        // paint.set_line_width(1.0);
+
+        // path.move_to(bounds.left(), bounds.top());
+        // path.line_to(bounds.right(), bounds.top());
+        // path.line_to(bounds.right(), bounds.bottom());
+        // path.line_to(bounds.left(), bounds.bottom());
+        // path.line_to(bounds.left(), bounds.top());
+
+        // canvas.stroke_path(&mut path, &paint);
+        // path.move_to(self.from.0, self.from.1);
+        // path.line_to(self.to.0, self.to.1);
+
+        let mut paint = Paint::color(vizia::vg::Color::rgbf(0.0, 0.0, 1.0));
+        // paint.set_line_width(1.0);
         let mut path = Path::new();
-
-        let paint = Paint::color(Color::black());
-
-        path.move_to(bounds.left(), bounds.top());
-        path.line_to(bounds.right(), bounds.top());
-        path.line_to(bounds.right(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.top());
-
-        canvas.stroke_path(&mut path, &paint);
-
-        let paint = Paint::color(Color::rgbf(0.0, 0.0, 1.0));
-        let mut path = Path::new();
-        path.move_to(self.from.0, self.from.1);
-        path.line_to(self.to.0, self.to.1);
+        path.move_to(20.0, 100.0);
+        path.line_to(40.0, 100.0);
 
         canvas.stroke_path(&mut path, &paint);
     }
