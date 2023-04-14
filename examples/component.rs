@@ -34,44 +34,14 @@ const STYLE: &str = r#"
 
 fn main() {
     Application::new(|cx| {
-        cx.add_theme(STYLE);
+        // cx.add_theme(STYLE);
 
-        AppData { show_modal: false }.build(cx);
+        // AppData { show_modal: false }.build(cx);
 
-        Button::new(
-            cx,
-            |cx| cx.emit(AppEvent::ShowModal),
-            |cx| Label::new(cx, "Show Modal"),
-        )
-        .width(Pixels(150.0))
-        .position_type(PositionType::SelfDirected)
-        .top(Pixels(100.0))
-        .left(Pixels(100.0));
+        // let m1 = Mux::new(cx, 200.0, 200.0);
+        // let m2 = Mux::new(cx, 300.0, 200.0);
 
-        Popup::new(cx, AppData::show_modal, true, |cx| {
-            Label::new(cx, "This is a message").width(Stretch(1.0));
-            HStack::new(cx, |cx| {
-                Button::new(
-                    cx,
-                    |cx| cx.emit(AppEvent::HideModal),
-                    |cx| Label::new(cx, "Ok"),
-                )
-                .width(Pixels(100.0))
-                .class("accent");
-
-                Button::new(
-                    cx,
-                    |cx| cx.emit(AppEvent::HideModal),
-                    |cx| Label::new(cx, "Cancel"),
-                )
-                .width(Pixels(100.0));
-            });
-        })
-        .on_blur(|cx| cx.emit(AppEvent::HideModal))
-        .width(Pixels(300.0))
-        .height(Auto)
-        .row_between(Pixels(10.0))
-        .class("modal");
+        let w1 = Wire::new(cx, 200.0, 200.0, 300.0, 200.0);
     })
     .title("Modal")
     .run();
@@ -106,53 +76,160 @@ use std::fmt::{self, Debug, Display};
 #[derive(Lens, Clone)]
 pub struct Port {}
 
-impl<T> Display for Port
-where
-    T: Display,
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.data)
-    }
-}
-
 #[derive(Debug)]
 pub enum PortEvent {
     SetData,
 }
 
 impl Model for Port {
-    fn event(&mut self, _: &mut EventContext, event: &mut Event) {
-        // event.map(|port_event, _| match app_event {
-        //     AppEvent::ShowModal => {
-        //         self.show_modal = true;
-        //     }
-        //     AppEvent::HideModal => {
-        //         self.show_modal = false;
-        //     }
-        // });
-    }
+    fn event(&mut self, _: &mut EventContext, event: &mut Event) {}
 }
 
 impl Port {
-    pub fn new<'a, A, L>(
-        cx: &'a mut Context,
-        action: A,
-        lens: L,
-        name: &str,
-        data: T,
-    ) -> Handle<'a, Self>
-    where
-        A: 'static + Fn(&mut EventContext),
-        L: Lens<Target = Port>,
-    {
-        // Self { data }.build(cx, |cx| {
-        //     Label::new(cx, MINUS).class("icon");
-        // })
-        Self {}.build(cx, |cx| {})
+    pub fn new<'a>(cx: &'a mut Context) -> Handle<'a, Self> {
+        vizia::prelude::View::build(Self {}, cx, |cx| {
+            // Label::new(cx, MINUS).class("icon");
+        })
+        .width(Pixels(10.0))
+        .height(Pixels(10.0))
     }
 }
 
-impl<T> View for Port {}
+impl View for Port {
+    fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
+        let bounds = cx.bounds();
+
+        let mut path = Path::new();
+
+        let mut paint = Paint::color(Color::black());
+        paint.set_line_width(1.0);
+        // paint.set_line_cap(LineCap::Round);
+
+        path.move_to(bounds.left(), bounds.top());
+        path.line_to(bounds.right(), bounds.top());
+        path.line_to(bounds.right(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.top());
+
+        canvas.stroke_path(&mut path, &paint);
+    }
+}
+
+#[derive(Lens, Clone)]
+pub struct Mux {}
+
+impl Model for Mux {}
+
+impl Mux {
+    pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32) -> Handle<'a, Self> {
+        vizia::prelude::View::build(Self {}, cx, |cx| {
+            // left side
+            for i in 0..10 {
+                Port::new(cx)
+                    // .width(Pixels(150.0))
+                    .position_type(PositionType::SelfDirected)
+                    .top(Pixels(20.0 * i as f32))
+                    .left(Pixels(0.0));
+            }
+
+            Port::new(cx)
+                // .width(Pixels(150.0))
+                .position_type(PositionType::SelfDirected)
+                .top(Pixels(100.0))
+                .left(Pixels(40.0));
+        })
+        .position_type(PositionType::SelfDirected)
+        .left(Pixels(x - 20.0))
+        .top(Pixels(y - 100.0))
+        .width(Pixels(40.0))
+        .height(Pixels(200.0))
+
+        // .height(Pixels(100.0))
+    }
+}
+
+use vizia::vg::{Color, LineCap, Paint, Path, Solidity};
+
+impl View for Mux {
+    fn element(&self) -> Option<&'static str> {
+        Some("mux")
+    }
+
+    fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
+        println!("draw");
+
+        let bounds = cx.bounds();
+
+        let mut path = Path::new();
+
+        let mut paint = Paint::color(Color::black());
+        // paint.set_line_width(line_width);
+        // paint.set_line_cap(LineCap::Round);
+
+        path.move_to(bounds.left(), bounds.top());
+        path.line_to(bounds.right(), bounds.top());
+        path.line_to(bounds.right(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.top());
+
+        canvas.stroke_path(&mut path, &paint);
+    }
+}
+
+#[derive(Lens, Clone)]
+pub struct Wire {
+    from: (f32, f32),
+    to: (f32, f32),
+}
+
+impl Model for Wire {}
+
+impl Wire {
+    pub fn new<'a>(cx: &'a mut Context, x1: f32, y1: f32, x2: f32, y2: f32) -> Handle<'a, Self> {
+        vizia::prelude::View::build(
+            Self {
+                from: (x1, y1),
+                to: (x2, y2),
+            },
+            cx,
+            |cx| {},
+        )
+        .position_type(PositionType::SelfDirected)
+        .left(Pixels(x1))
+        .top(Pixels(y1 - 1.0))
+        .width(Pixels(x2 - x1))
+        .height(Pixels(3.0))
+    }
+}
+
+impl View for Wire {
+    fn element(&self) -> Option<&'static str> {
+        Some("wire")
+    }
+
+    fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
+        let bounds = cx.bounds();
+
+        let mut path = Path::new();
+
+        let paint = Paint::color(Color::black());
+
+        path.move_to(bounds.left(), bounds.top());
+        path.line_to(bounds.right(), bounds.top());
+        path.line_to(bounds.right(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.top());
+
+        canvas.stroke_path(&mut path, &paint);
+
+        let paint = Paint::color(Color::rgbf(0.0, 0.0, 1.0));
+        let mut path = Path::new();
+        path.move_to(self.from.0, self.from.1);
+        path.line_to(self.to.0, self.to.1);
+
+        canvas.stroke_path(&mut path, &paint);
+    }
+}
 
 // #[derive(Lens, Clone, Debug)]
 // pub struct Port<T>
