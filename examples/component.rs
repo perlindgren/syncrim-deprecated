@@ -40,12 +40,13 @@ use vizia::vg::{LineCap, Paint, Path, Solidity};
 // let m2 = Mux::new(cx, 300.0, 200.0);
 fn main() {
     Application::new(|cx| {
-        Element::new(cx)
-            .width(Pixels(100.0))
-            .height(Pixels(100.0))
-            .border_color(Color::black())
-            .border_width(Pixels(1.0));
-        let w1 = Wire::new(cx, 10.0, 100.0, 20.0, 100.0);
+        // Element::new(cx)
+        //     .width(Pixels(100.0))
+        //     .height(Pixels(100.0))
+        //     .border_color(Color::black())
+        //     .border_width(Pixels(1.0));
+        let w1 = Wire::new(cx, 100.0, 100.0, 200.0, 100.0);
+        let w2 = Wire::new(cx, 100.0, 100.0, 100.0, 200.0);
     })
     .run();
 }
@@ -177,29 +178,34 @@ fn main() {
 //     }
 // }
 
+#[derive(Clone, Copy)]
+pub enum Direction {
+    Horizontal,
+    Vertical,
+}
 #[derive(Lens, Clone)]
 pub struct Wire {
-    from: (f32, f32),
-    to: (f32, f32),
+    direction: Direction,
 }
 
 impl Model for Wire {}
 
 impl Wire {
     pub fn new<'a>(cx: &'a mut Context, x1: f32, y1: f32, x2: f32, y2: f32) -> Handle<'a, Self> {
-        vizia::prelude::View::build(
-            Self {
-                from: (x1, y1),
-                to: (x2, y2),
-            },
-            cx,
-            |cx| {},
-        )
-        // .position_type(PositionType::SelfDirected)
-        // .left(Pixels(x1))
-        // .top(Pixels(y1 - 1.0))
-        // .width(Pixels(x2 - x1))
-        // .height(Pixels(3.0))
+        let direction = if y1 == y2 {
+            Direction::Horizontal
+        } else {
+            Direction::Vertical
+        };
+        let handle = vizia::prelude::View::build(Self { direction }, cx, |cx| {})
+            .position_type(PositionType::SelfDirected)
+            .left(Pixels(x1))
+            .top(Pixels(y1 - 2.0));
+
+        match direction {
+            Direction::Horizontal => handle.width(Pixels(x2 - x1)).height(Pixels(4.0)),
+            Direction::Vertical => handle.width(Pixels(4.0)).height(Pixels(y2 - y1)),
+        }
     }
 }
 
@@ -211,27 +217,33 @@ impl View for Wire {
     fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
         let bounds = cx.bounds();
 
-        // let mut path = Path::new();
+        println!("bounds {:?}", bounds);
 
-        // let mut paint = Paint::color(Color::black());
-        // paint.set_line_width(1.0);
+        let mut path = Path::new();
 
-        // path.move_to(bounds.left(), bounds.top());
-        // path.line_to(bounds.right(), bounds.top());
-        // path.line_to(bounds.right(), bounds.bottom());
-        // path.line_to(bounds.left(), bounds.bottom());
-        // path.line_to(bounds.left(), bounds.top());
+        let mut paint = Paint::color(vizia::vg::Color::black());
+        paint.set_line_width(cx.logical_to_physical(1.0));
+        path.move_to(bounds.left(), bounds.top());
+        path.line_to(bounds.right(), bounds.top());
+        path.line_to(bounds.right(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.top());
 
-        // canvas.stroke_path(&mut path, &paint);
-        // path.move_to(self.from.0, self.from.1);
-        // path.line_to(self.to.0, self.to.1);
+        canvas.stroke_path(&mut path, &paint);
 
         let mut paint = Paint::color(vizia::vg::Color::rgbf(0.0, 0.0, 1.0));
-        // paint.set_line_width(1.0);
+        paint.set_line_width(cx.logical_to_physical(1.0));
         let mut path = Path::new();
-        path.move_to(20.0, 100.0);
-        path.line_to(40.0, 100.0);
-
+        match self.direction {
+            Direction::Horizontal => {
+                path.move_to(bounds.left(), bounds.top() + bounds.height() * 0.5);
+                path.line_to(bounds.right(), bounds.top() + bounds.height() * 0.5);
+            }
+            Direction::Vertical => {
+                path.move_to(bounds.left() + bounds.width() * 0.5, bounds.top());
+                path.line_to(bounds.left() + bounds.width() * 0.5, bounds.bottom());
+            }
+        };
         canvas.stroke_path(&mut path, &paint);
     }
 }
