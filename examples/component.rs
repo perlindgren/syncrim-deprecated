@@ -1,43 +1,7 @@
 use vizia::fonts::icons_names::{DOWN, MINUS, UP};
 use vizia::prelude::*;
-use vizia::vg::{LineCap, Paint, Path, Solidity};
+use vizia::vg::{Paint, Path};
 
-// const STYLE: &str = r#"
-
-//     .modal {
-//         space: 1s;
-//         background-color: white;
-//         border-radius: 3px;
-//         border-width: 1px;
-//         border-color: #999999;
-//         outer-shadow: 0 3 10 #00000055;
-//         overflow: visible;
-//         child-space: 10px;
-//     }
-
-//     modal>popup>label {
-//         width: auto;
-//         height: auto;
-//         space: 5px;
-//         child-space: 1s;
-//     }
-
-//     button {
-//         border-radius: 3px;
-//         child-space: 1s;
-//     }
-
-//     hstack {
-//         child-space: 1s;
-//         col-between: 20px;
-//     }
-// "#;
-// cx.add_theme(STYLE);
-
-// AppData { show_modal: false }.build(cx);
-
-// let m1 = Mux::new(cx, 200.0, 200.0);
-// let m2 = Mux::new(cx, 300.0, 200.0);
 fn main() {
     Application::new(|cx| {
         // Element::new(cx)
@@ -45,138 +9,117 @@ fn main() {
         //     .height(Pixels(100.0))
         //     .border_color(Color::black())
         //     .border_width(Pixels(1.0));
+        let m1 = Mux::new(cx, 200.0, 100.0, 3);
         let w1 = Wire::new(cx, 100.0, 100.0, 200.0, 100.0);
         let w2 = Wire::new(cx, 100.0, 100.0, 100.0, 200.0);
     })
     .run();
 }
 
-// #[derive(Debug)]
-// pub enum AppEvent {
-//     ShowModal,
-//     HideModal,
-// }
+#[derive(Lens, Clone)]
+pub struct Port {}
 
-// #[derive(Lens)]
-// pub struct AppData {
-//     show_modal: bool,
-// }
+#[derive(Debug)]
+pub enum PortEvent {
+    SetData,
+}
 
-// impl Model for AppData {
-//     fn event(&mut self, _: &mut EventContext, event: &mut Event) {
-//         event.map(|app_event, _| match app_event {
-//             AppEvent::ShowModal => {
-//                 self.show_modal = true;
-//             }
-//             AppEvent::HideModal => {
-//                 self.show_modal = false;
-//             }
-//         });
-//     }
-// }
+const PORT_SIZE: f32 = 10.0;
 
-// use std::fmt::{self, Debug, Display};
+impl Model for Port {
+    fn event(&mut self, _: &mut EventContext, event: &mut Event) {}
+}
 
-// #[derive(Lens, Clone)]
-// pub struct Port {}
+impl Port {
+    pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32) -> Handle<'a, Self> {
+        vizia::prelude::View::build(Self {}, cx, |cx| {})
+            .position_type(PositionType::SelfDirected)
+            .left(Pixels(x - PORT_SIZE * 0.5))
+            .top(Pixels(y - PORT_SIZE * 0.5))
+            .width(Pixels(PORT_SIZE))
+            .height(Pixels(PORT_SIZE))
+    }
+}
 
-// #[derive(Debug)]
-// pub enum PortEvent {
-//     SetData,
-// }
+impl View for Port {
+    fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
+        let bounds = cx.bounds();
+        println!("port draw {:?}", bounds);
 
-// impl Model for Port {
-//     fn event(&mut self, _: &mut EventContext, event: &mut Event) {}
-// }
+        let mut path = Path::new();
 
-// impl Port {
-//     pub fn new<'a>(cx: &'a mut Context) -> Handle<'a, Self> {
-//         vizia::prelude::View::build(Self {}, cx, |cx| {
-//             // Label::new(cx, MINUS).class("icon");
-//         })
-//         .width(Pixels(10.0))
-//         .height(Pixels(10.0))
-//     }
-// }
+        let mut paint = Paint::color(vizia::vg::Color::black());
+        paint.set_line_width(cx.logical_to_physical(1.0));
 
-// impl View for Port {
-//     fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
-//         let bounds = cx.bounds();
+        path.move_to(bounds.left(), bounds.top());
+        path.line_to(bounds.right(), bounds.top());
+        path.line_to(bounds.right(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.top());
 
-//         let mut path = Path::new();
+        canvas.stroke_path(&mut path, &paint);
+    }
+}
 
-//         let mut paint = Paint::color(Color::black());
-//         paint.set_line_width(1.0);
-//         // paint.set_line_cap(LineCap::Round);
+#[derive(Lens, Clone)]
+pub struct Mux {
+    //out: Port,
+}
 
-//         path.move_to(bounds.left(), bounds.top());
-//         path.line_to(bounds.right(), bounds.top());
-//         path.line_to(bounds.right(), bounds.bottom());
-//         path.line_to(bounds.left(), bounds.bottom());
-//         path.line_to(bounds.left(), bounds.top());
+impl Model for Mux {}
 
-//         canvas.stroke_path(&mut path, &paint);
-//     }
-// }
+const MUX_WIDTH: f32 = 40.0;
+const MUX_SPACE: f32 = 20.0;
 
-// #[derive(Lens, Clone)]
-// pub struct Mux {}
+impl Mux {
+    pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32, nr_in: usize) -> Handle<'a, Self> {
+        let half_width = MUX_WIDTH * 0.5;
+        let half_hight = (1 + nr_in) as f32 * MUX_SPACE * 0.5;
+        vizia::prelude::View::build(
+            Self {
+                // out: Port::new(cx, 0.0, (i + 1) as f32 * MUX_SPACE),
+            },
+            cx,
+            |cx| {
+                // // inputs
+                // for i in 0..nr_in {
+                //     Port::new(cx, 0.0, (i + 1) as f32 * MUX_SPACE);
+                // }
 
-// impl Model for Mux {}
+                // Port::new(cx, half_width, 0.0);
+                // Port::new(cx, half_width * 2.0, half_hight);
+            },
+        )
+        .position_type(PositionType::SelfDirected)
+        .left(Pixels(x - half_width))
+        .top(Pixels(y - half_hight))
+        .width(Pixels(MUX_WIDTH))
+        .height(Pixels(half_hight * 2.0))
+    }
+}
 
-// impl Mux {
-//     pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32) -> Handle<'a, Self> {
-//         vizia::prelude::View::build(Self {}, cx, |cx| {
-//             // left side
-//             for i in 0..10 {
-//                 Port::new(cx)
-//                     // .width(Pixels(150.0))
-//                     .position_type(PositionType::SelfDirected)
-//                     .top(Pixels(20.0 * i as f32))
-//                     .left(Pixels(0.0));
-//             }
+impl View for Mux {
+    fn element(&self) -> Option<&'static str> {
+        Some("mux")
+    }
 
-//             Port::new(cx)
-//                 // .width(Pixels(150.0))
-//                 .position_type(PositionType::SelfDirected)
-//                 .top(Pixels(100.0))
-//                 .left(Pixels(40.0));
-//         })
-//         .position_type(PositionType::SelfDirected)
-//         .left(Pixels(x - 20.0))
-//         .top(Pixels(y - 100.0))
-//         .width(Pixels(40.0))
-//         .height(Pixels(200.0))
+    fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
+        let bounds = cx.bounds();
+        println!("mux draw {:?}", bounds);
 
-//         // .height(Pixels(100.0))
-//     }
-// }
+        let mut path = Path::new();
+        let mut paint = Paint::color(vizia::vg::Color::black());
+        paint.set_line_width(cx.logical_to_physical(1.0));
 
-// impl View for Mux {
-//     fn element(&self) -> Option<&'static str> {
-//         Some("mux")
-//     }
+        path.move_to(bounds.left(), bounds.top());
+        path.line_to(bounds.right(), bounds.top());
+        path.line_to(bounds.right(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.bottom());
+        path.line_to(bounds.left(), bounds.top());
 
-//     fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
-//         println!("draw");
-
-//         let bounds = cx.bounds();
-
-//         let mut path = Path::new();
-
-//         let mut paint = Paint::color(Color::black());
-//         // paint.set_line_width(line_width);
-//         // paint.set_line_cap(LineCap::Round);
-
-//         path.move_to(bounds.left(), bounds.top());
-//         path.line_to(bounds.right(), bounds.top());
-//         path.line_to(bounds.right(), bounds.bottom());
-//         path.line_to(bounds.left(), bounds.bottom());
-//         path.line_to(bounds.left(), bounds.top());
-
-//         canvas.stroke_path(&mut path, &paint);
-//     }
-// }
+        canvas.stroke_path(&mut path, &paint);
+    }
+}
 
 #[derive(Clone, Copy)]
 pub enum Direction {
@@ -217,7 +160,7 @@ impl View for Wire {
     fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
         let bounds = cx.bounds();
 
-        println!("bounds {:?}", bounds);
+        println!("wire bounds {:?}", bounds);
 
         let mut path = Path::new();
 
