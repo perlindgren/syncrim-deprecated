@@ -33,6 +33,8 @@ fn main() {
         let _w1 = Wire::new(cx, 50.0, 390.0, 180.0, 390.0);
 
         let _w1 = Wire::new(cx, 50.0, 410.0, 180.0, 410.0);
+
+        let _sync = Synchronizer::new(cx, 200.0, 200.0);
     })
     .run();
 }
@@ -47,9 +49,9 @@ pub enum PortEvent {
 
 const PORT_SIZE: f32 = 10.0;
 
-impl Model for Port {
-    fn event(&mut self, _: &mut EventContext, event: &mut Event) {}
-}
+// impl Model for Port {
+//     fn event(&mut self, _: &mut EventContext, event: &mut Event) {}
+// }
 
 impl Port {
     pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32) -> Handle<'a, Self> {
@@ -84,10 +86,10 @@ impl View for Port {
 
 #[derive(Lens, Clone)]
 pub struct Mux {
-    //out: Port,
+    //  out: (f32, f32),
 }
 
-impl Model for Mux {}
+// impl Model for Mux {}
 
 const MUX_WIDTH: f32 = 40.0;
 const MUX_SPACE: f32 = 20.0;
@@ -143,6 +145,52 @@ impl View for Mux {
     }
 }
 
+#[derive(Lens, Clone)]
+pub struct Synchronizer {}
+
+// impl Model for Synchronizer {}
+
+impl Synchronizer {
+    pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32) -> Handle<'a, Self> {
+        let half_width = PORT_SIZE;
+        let half_hight = PORT_SIZE * 0.5;
+        vizia::prelude::View::build(Self {}, cx, |cx| {
+            // input
+            Port::new(cx, half_width * 0.5, half_hight);
+            // output
+            Port::new(cx, half_width * 1.5, half_hight);
+        })
+        .position_type(PositionType::SelfDirected)
+        .left(Pixels(x - half_width))
+        .top(Pixels(y - half_hight))
+        .width(Pixels(half_width * 2.0))
+        .height(Pixels(half_hight * 2.0))
+    }
+}
+
+impl View for Synchronizer {
+    fn element(&self) -> Option<&'static str> {
+        Some("synchronizer")
+    }
+
+    fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
+        let bounds = cx.bounds();
+        println!("synchronizer draw {:?}", bounds);
+
+        let mut path = Path::new();
+        let mut paint = Paint::color(vizia::vg::Color::rgbf(1.0, 0.0, 0.0));
+        paint.set_line_width(cx.logical_to_physical(1.0));
+
+        path.move_to(bounds.left() + 0.5, bounds.top() + 0.5);
+        path.line_to(bounds.right() + 0.5, bounds.top() + 0.5);
+        path.line_to(bounds.right() + 0.5, bounds.bottom() + 0.5);
+        path.line_to(bounds.left() + 0.5, bounds.bottom() + 0.5);
+        path.line_to(bounds.left() + 0.5, bounds.top() + 0.5);
+
+        canvas.stroke_path(&mut path, &paint);
+    }
+}
+
 #[derive(Clone, Copy)]
 pub enum Direction {
     Horizontal,
@@ -153,7 +201,7 @@ pub struct Wire {
     direction: Direction,
 }
 
-impl Model for Wire {}
+// impl Model for Wire {}
 
 impl Wire {
     pub fn new<'a>(cx: &'a mut Context, x1: f32, y1: f32, x2: f32, y2: f32) -> Handle<'a, Self> {
@@ -224,67 +272,3 @@ impl View for Wire {
         canvas.stroke_path(&mut path, &paint);
     }
 }
-
-// #[derive(Lens, Clone, Debug)]
-// pub struct Port<T>
-// where
-//     T: Display + Clone + 'static + Debug,
-// {
-//     data: T,
-// }
-
-// impl<T> Display for Port<T>
-// where
-//     T: Display + Clone + 'static + Debug,
-// {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         write!(f, "{}", self.data)
-//     }
-// }
-
-// #[derive(Debug)]
-// pub enum PortEvent<T>
-// where
-//     T: Display + Clone + 'static + Debug,
-// {
-//     SetData(T),
-// }
-
-// impl<T> Model for Port<T>
-// where
-//     T: Display + Clone + 'static + Debug,
-// {
-//     fn event(&mut self, _: &mut EventContext, event: &mut Event) {
-//         // event.map(|port_event, _| match app_event {
-//         //     AppEvent::ShowModal => {
-//         //         self.show_modal = true;
-//         //     }
-//         //     AppEvent::HideModal => {
-//         //         self.show_modal = false;
-//         //     }
-//         // });
-//     }
-// }
-
-// impl<T> Port<T>
-// where
-//     T: Display + Clone + 'static + Debug,
-// {
-//     pub fn new<'a, A, L>(
-//         cx: &'a mut Context,
-//         action: A,
-//         lens: L,
-//         name: &str,
-//         data: T,
-//     ) -> Handle<'a, Self>
-//     where
-//         A: 'static + Fn(&mut EventContext),
-//         L: Lens<Target = Port<T>>,
-//     {
-//         // Self { data }.build(cx, |cx| {
-//         //     Label::new(cx, MINUS).class("icon");
-//         // })
-//     }
-// }
-
-// impl<T> View for Port<T> where T: Display + Clone + 'static + Debug {}
