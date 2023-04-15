@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 rfd = "0.11.3"
-vizia = { git = "https://github.com/vizia/vizia.git" }
+serde = "1.0.160"
+vizia = { git = "https://github.com/vizia/vizia.git", features = ["serde"] }

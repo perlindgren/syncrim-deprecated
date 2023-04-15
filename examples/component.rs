@@ -4,14 +4,35 @@ use vizia::vg::{Paint, Path};
 
 fn main() {
     Application::new(|cx| {
+        // just to check layout of Vizia components
         // Element::new(cx)
+        //     .top(Pixels(100.0))
+        //     .left(Pixels(100.0))
         //     .width(Pixels(100.0))
         //     .height(Pixels(100.0))
         //     .border_color(Color::black())
         //     .border_width(Pixels(1.0));
-        let m1 = Mux::new(cx, 200.0, 100.0, 3);
-        let w1 = Wire::new(cx, 100.0, 100.0, 200.0, 100.0);
-        let w2 = Wire::new(cx, 100.0, 100.0, 100.0, 200.0);
+
+        // Custom components
+        let _m1 = Mux::new(cx, 200.0, 100.0, 3);
+
+        let _p1 = Port::new(cx, 50.0, 100.0);
+
+        let _p2 = Port::new(cx, 50.0, 120.0);
+
+        let _w1 = Wire::new(cx, 50.0, 100.0, 180.0, 100.0);
+
+        let _w1 = Wire::new(cx, 50.0, 120.0, 180.0, 120.0);
+
+        let _m1 = Mux::new(cx, 200.0, 400.0, 2);
+
+        let _p1 = Port::new(cx, 50.0, 390.0);
+
+        let _p2 = Port::new(cx, 50.0, 410.0);
+
+        let _w1 = Wire::new(cx, 50.0, 390.0, 180.0, 390.0);
+
+        let _w1 = Wire::new(cx, 50.0, 410.0, 180.0, 410.0);
     })
     .run();
 }
@@ -51,11 +72,11 @@ impl View for Port {
         let mut paint = Paint::color(vizia::vg::Color::black());
         paint.set_line_width(cx.logical_to_physical(1.0));
 
-        path.move_to(bounds.left(), bounds.top());
-        path.line_to(bounds.right(), bounds.top());
-        path.line_to(bounds.right(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.top());
+        path.move_to(bounds.left() + 0.5, bounds.top() + 0.5);
+        path.line_to(bounds.right() + 0.5, bounds.top() + 0.5);
+        path.line_to(bounds.right() + 0.5, bounds.bottom() + 0.5);
+        path.line_to(bounds.left() + 0.5, bounds.bottom() + 0.5);
+        path.line_to(bounds.left() + 0.5, bounds.top() + 0.5);
 
         canvas.stroke_path(&mut path, &paint);
     }
@@ -81,13 +102,14 @@ impl Mux {
             },
             cx,
             |cx| {
-                // // inputs
-                // for i in 0..nr_in {
-                //     Port::new(cx, 0.0, (i + 1) as f32 * MUX_SPACE);
-                // }
+                // inputs
+                for i in 0..nr_in {
+                    Port::new(cx, 0.0, (i + 1) as f32 * MUX_SPACE);
+                }
 
-                // Port::new(cx, half_width, 0.0);
-                // Port::new(cx, half_width * 2.0, half_hight);
+                Port::new(cx, half_width, 0.0);
+                // output
+                Port::new(cx, half_width * 2.0, half_hight);
             },
         )
         .position_type(PositionType::SelfDirected)
@@ -111,11 +133,11 @@ impl View for Mux {
         let mut paint = Paint::color(vizia::vg::Color::black());
         paint.set_line_width(cx.logical_to_physical(1.0));
 
-        path.move_to(bounds.left(), bounds.top());
-        path.line_to(bounds.right(), bounds.top());
-        path.line_to(bounds.right(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.top());
+        path.move_to(bounds.left() + 0.5, bounds.top() + 0.5);
+        path.line_to(bounds.right() + 0.5, bounds.top() + 0.5);
+        path.line_to(bounds.right() + 0.5, bounds.bottom() + 0.5);
+        path.line_to(bounds.left() + 0.5, bounds.bottom() + 0.5);
+        path.line_to(bounds.left() + 0.5, bounds.top() + 0.5);
 
         canvas.stroke_path(&mut path, &paint);
     }
@@ -166,11 +188,11 @@ impl View for Wire {
 
         let mut paint = Paint::color(vizia::vg::Color::black());
         paint.set_line_width(cx.logical_to_physical(1.0));
-        path.move_to(bounds.left(), bounds.top());
-        path.line_to(bounds.right(), bounds.top());
-        path.line_to(bounds.right(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.bottom());
-        path.line_to(bounds.left(), bounds.top());
+        path.move_to(bounds.left() + 0.5, bounds.top() + 0.5);
+        path.line_to(bounds.right() + 0.5, bounds.top() + 0.5);
+        path.line_to(bounds.right() + 0.5, bounds.bottom() + 0.5);
+        path.line_to(bounds.left() + 0.5, bounds.bottom() + 0.5);
+        path.line_to(bounds.left() + 0.5, bounds.top() + 0.5);
 
         canvas.stroke_path(&mut path, &paint);
 
@@ -179,12 +201,24 @@ impl View for Wire {
         let mut path = Path::new();
         match self.direction {
             Direction::Horizontal => {
-                path.move_to(bounds.left(), bounds.top() + bounds.height() * 0.5);
-                path.line_to(bounds.right(), bounds.top() + bounds.height() * 0.5);
+                path.move_to(
+                    bounds.left() + 0.5,
+                    bounds.top() + bounds.height() * 0.5 + 0.5,
+                );
+                path.line_to(
+                    bounds.right() + 0.5,
+                    bounds.top() + bounds.height() * 0.5 + 0.5,
+                );
             }
             Direction::Vertical => {
-                path.move_to(bounds.left() + bounds.width() * 0.5, bounds.top());
-                path.line_to(bounds.left() + bounds.width() * 0.5, bounds.bottom());
+                path.move_to(
+                    bounds.left() + bounds.width() * 0.5 + 0.5,
+                    bounds.top() + 0.5,
+                );
+                path.line_to(
+                    bounds.left() + bounds.width() * 0.5 + 0.5,
+                    bounds.bottom() + 0.5,
+                );
             }
         };
         canvas.stroke_path(&mut path, &paint);
