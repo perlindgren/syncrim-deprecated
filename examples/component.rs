@@ -2,6 +2,11 @@ use vizia::fonts::icons_names::{DOWN, MINUS, UP};
 use vizia::prelude::*;
 use vizia::vg::{Paint, Path};
 
+#[derive(Lens, Debug)]
+struct SimState {
+    pc_reg: u32,
+}
+
 fn main() {
     Application::new(|cx| {
         // just to check layout of Vizia components
@@ -13,28 +18,33 @@ fn main() {
         //     .border_color(Color::black())
         //     .border_width(Pixels(1.0));
 
-        // Custom components
-        let _m1 = Mux::new(cx, 200.0, 100.0, 3);
+        // // Custom components
+        // let _m1 = Mux::new(cx, 200.0, 100.0, 3);
 
-        let _p1 = Port::new(cx, 50.0, 100.0);
+        // let _p1 = Port::new(cx, 50.0, 100.0);
 
-        let _p2 = Port::new(cx, 50.0, 120.0);
+        // let _p2 = Port::new(cx, 50.0, 120.0);
 
-        let _w1 = Wire::new(cx, 50.0, 100.0, 180.0, 100.0);
+        // let _w1 = Wire::new(cx, 50.0, 100.0, 180.0, 100.0);
 
-        let _w1 = Wire::new(cx, 50.0, 120.0, 180.0, 120.0);
+        // let _w1 = Wire::new(cx, 50.0, 120.0, 180.0, 120.0);
 
-        let _m1 = Mux::new(cx, 200.0, 400.0, 2);
+        // let _m1 = Mux::new(cx, 200.0, 400.0, 2);
 
-        let _p1 = Port::new(cx, 50.0, 390.0);
+        // let _p1 = Port::new(cx, 50.0, 390.0);
 
-        let _p2 = Port::new(cx, 50.0, 410.0);
+        // let _p2 = Port::new(cx, 50.0, 410.0);
 
-        let _w1 = Wire::new(cx, 50.0, 390.0, 180.0, 390.0);
+        // let _w1 = Wire::new(cx, 50.0, 390.0, 180.0, 390.0);
 
-        let _w1 = Wire::new(cx, 50.0, 410.0, 180.0, 410.0);
+        // let _w1 = Wire::new(cx, 50.0, 410.0, 180.0, 410.0);
 
         let _sync = Synchronizer::new(cx, 200.0, 200.0);
+        let _w1 = Wire::new(cx, 205.0, 200.0, 230.0, 200.0);
+        let _w1 = Wire::new(cx, 230.0, 200.0, 230.0, 220.0);
+        let _w1 = Wire::new(cx, 230.0, 220.0, 170.0, 220.0);
+        let _w1 = Wire::new(cx, 170.0, 220.0, 170.0, 200.0);
+        let _w1 = Wire::new(cx, 170.0, 200.0, 195.0, 200.0);
     })
     .run();
 }
@@ -212,12 +222,12 @@ impl Wire {
         };
         let handle = vizia::prelude::View::build(Self { direction }, cx, |cx| {})
             .position_type(PositionType::SelfDirected)
-            .left(Pixels(x1))
-            .top(Pixels(y1 - 2.0));
+            .left(Pixels(f32::min(x1, x2)))
+            .top(Pixels(f32::min(y1, y2) - 2.0));
 
         match direction {
-            Direction::Horizontal => handle.width(Pixels(x2 - x1)).height(Pixels(4.0)),
-            Direction::Vertical => handle.width(Pixels(4.0)).height(Pixels(y2 - y1)),
+            Direction::Horizontal => handle.width(Pixels(f32::abs(x2 - x1))).height(Pixels(4.0)),
+            Direction::Vertical => handle.width(Pixels(4.0)).height(Pixels(f32::abs(y2 - y1))),
         }
     }
 }
