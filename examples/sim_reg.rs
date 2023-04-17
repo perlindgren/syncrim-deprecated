@@ -1,4 +1,4 @@
-use syncrim::{register::Register, wire::Wire};
+use syncrim::{reg::Reg, wire::Wire};
 
 use vizia::prelude::*;
 
@@ -30,7 +30,7 @@ fn main() {
     Application::new(|cx| {
         SimState { pc_reg: 0 }.build(cx);
 
-        let _sync = Register::new(cx, 200.0, 200.0);
+        let _sync = Reg::new(cx, 42, 200.0, 200.0);
         let _w1 = Wire::new(cx, 205.0, 200.0, 230.0, 200.0);
         let _w1 = Wire::new(cx, 230.0, 200.0, 230.0, 220.0);
         let _w1 = Wire::new(cx, 230.0, 220.0, 170.0, 220.0);

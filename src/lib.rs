@@ -1,5 +1,6 @@
 mod common;
 mod port;
+pub mod reg;
 pub mod register;
 pub mod wire;
 
