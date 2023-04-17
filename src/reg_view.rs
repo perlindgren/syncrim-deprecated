@@ -41,7 +41,6 @@ where
     fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
         let bounds = cx.bounds();
         println!("Register draw {:?}", bounds);
-        // println!("-- for now just printing state -- {:?}", self.data.view());
 
         let mut path = Path::new();
         let mut paint = Paint::color(vizia::vg::Color::rgbf(1.0, 0.0, 0.0));
