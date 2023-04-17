@@ -1,23 +1,26 @@
-// use crate::common::*;
 use crate::port::{Port, PORT_SIZE};
-
 use vizia::prelude::*;
 use vizia::vg::{Paint, Path};
 
 #[derive(Lens, Clone)]
-pub struct Register {}
+pub struct RegView<L: Lens> {
+    lens: L,
+}
 
-// impl Model for Register {}
-
-impl Register {
-    pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32) -> Handle<'a, Self> {
+impl<L: Lens> RegView<L>
+where
+    <L as Lens>::Target: Data + Clone + ToString,
+{
+    pub fn new<'a>(cx: &'a mut Context, lens: L, x: f32, y: f32) -> Handle<'a, Self> {
         let half_width = PORT_SIZE;
         let half_hight = PORT_SIZE * 0.5;
-        vizia::prelude::View::build(Self {}, cx, |cx| {
+
+        vizia::prelude::View::build(Self { lens: lens.clone() }, cx, |cx| {
             // input
             Port::new(cx, half_width * 0.5, half_hight);
             // output
             Port::new(cx, half_width * 1.5, half_hight);
+            Label::new(cx, lens);
         })
         .position_type(PositionType::SelfDirected)
         .left(Pixels(x - half_width))
@@ -27,14 +30,18 @@ impl Register {
     }
 }
 
-impl View for Register {
+impl<L> View for RegView<L>
+where
+    L: Lens,
+{
     fn element(&self) -> Option<&'static str> {
-        Some("Register")
+        Some("RegView")
     }
 
     fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
         let bounds = cx.bounds();
         println!("Register draw {:?}", bounds);
+        // println!("-- for now just printing state -- {:?}", self.data.view());
 
         let mut path = Path::new();
         let mut paint = Paint::color(vizia::vg::Color::rgbf(1.0, 0.0, 0.0));

@@ -1,24 +1,14 @@
-use vizia::fonts::icons_names::{DOWN, MINUS, UP};
 use vizia::prelude::*;
 use vizia::vg::{Paint, Path};
 
 #[derive(Lens, Clone)]
 pub struct Port {}
 
-#[derive(Debug)]
-pub enum PortEvent {
-    SetData,
-}
-
 pub const PORT_SIZE: f32 = 10.0;
-
-// impl Model for Port {
-//     fn event(&mut self, _: &mut EventContext, event: &mut Event) {}
-// }
 
 impl Port {
     pub fn new<'a>(cx: &'a mut Context, x: f32, y: f32) -> Handle<'a, Self> {
-        vizia::prelude::View::build(Self {}, cx, |cx| {})
+        vizia::prelude::View::build(Self {}, cx, |_cx| {})
             .position_type(PositionType::SelfDirected)
             .left(Pixels(x - PORT_SIZE * 0.5))
             .top(Pixels(y - PORT_SIZE * 0.5))

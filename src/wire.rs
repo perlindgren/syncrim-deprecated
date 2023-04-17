@@ -1,4 +1,3 @@
-use vizia::fonts::icons_names::{DOWN, MINUS, UP};
 use vizia::prelude::*;
 use vizia::vg::{Paint, Path};
 
@@ -8,12 +7,10 @@ pub enum Direction {
     Vertical,
 }
 
-#[derive(Lens, Clone)]
+// #[derive(Lens, Clone)]
 pub struct Wire {
     direction: Direction,
 }
-
-// impl Model for Wire {}
 
 const WIRE_WIDTH: f32 = 4.0;
 
@@ -24,7 +21,7 @@ impl Wire {
         } else {
             Direction::Vertical
         };
-        let handle = vizia::prelude::View::build(Self { direction }, cx, |cx| {})
+        let handle = vizia::prelude::View::build(Self { direction }, cx, |_cx| {})
             .position_type(PositionType::SelfDirected)
             .left(Pixels(f32::min(x1, x2) - WIRE_WIDTH * 0.5))
             .top(Pixels(f32::min(y1, y2) - WIRE_WIDTH * 0.5));
