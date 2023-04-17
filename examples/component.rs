@@ -213,6 +213,8 @@ pub struct Wire {
 
 // impl Model for Wire {}
 
+const WIRE_WIDTH: f32 = 4.0;
+
 impl Wire {
     pub fn new<'a>(cx: &'a mut Context, x1: f32, y1: f32, x2: f32, y2: f32) -> Handle<'a, Self> {
         let direction = if y1 == y2 {
@@ -222,12 +224,16 @@ impl Wire {
         };
         let handle = vizia::prelude::View::build(Self { direction }, cx, |cx| {})
             .position_type(PositionType::SelfDirected)
-            .left(Pixels(f32::min(x1, x2)))
-            .top(Pixels(f32::min(y1, y2) - 2.0));
+            .left(Pixels(f32::min(x1, x2) - WIRE_WIDTH * 0.5))
+            .top(Pixels(f32::min(y1, y2) - WIRE_WIDTH * 0.5));
 
         match direction {
-            Direction::Horizontal => handle.width(Pixels(f32::abs(x2 - x1))).height(Pixels(4.0)),
-            Direction::Vertical => handle.width(Pixels(4.0)).height(Pixels(f32::abs(y2 - y1))),
+            Direction::Horizontal => handle
+                .width(Pixels(f32::abs(x2 - x1) + WIRE_WIDTH))
+                .height(Pixels(WIRE_WIDTH)),
+            Direction::Vertical => handle
+                .width(Pixels(WIRE_WIDTH))
+                .height(Pixels(f32::abs(y2 - y1) + WIRE_WIDTH)),
         }
     }
 }
@@ -260,22 +266,22 @@ impl View for Wire {
         match self.direction {
             Direction::Horizontal => {
                 path.move_to(
-                    bounds.left() + 0.5,
+                    bounds.left() + bounds.height() * 0.5 + 0.5,
                     bounds.top() + bounds.height() * 0.5 + 0.5,
                 );
                 path.line_to(
-                    bounds.right() + 0.5,
+                    bounds.right() - bounds.height() * 0.5 + 0.5,
                     bounds.top() + bounds.height() * 0.5 + 0.5,
                 );
             }
             Direction::Vertical => {
                 path.move_to(
                     bounds.left() + bounds.width() * 0.5 + 0.5,
-                    bounds.top() + 0.5,
+                    bounds.top() + bounds.width() * 0.5 + 0.5,
                 );
                 path.line_to(
                     bounds.left() + bounds.width() * 0.5 + 0.5,
-                    bounds.bottom() + 0.5,
+                    bounds.bottom() - bounds.width() * 0.5 + 0.5,
                 );
             }
         };
