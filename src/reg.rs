@@ -1,6 +1,4 @@
-// use crate::common::*;
 use crate::port::{Port, PORT_SIZE};
-use vizia::fonts::icons_names::{DOWN, MINUS, UP};
 use vizia::prelude::*;
 use vizia::vg::{Paint, Path};
 
