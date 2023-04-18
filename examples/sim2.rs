@@ -68,7 +68,7 @@ fn main() {
         }
         .build(cx);
 
-        Button::new(cx, |cx| cx.emit(SimEvent::Clk), |cx| Label::new(cx, "Add"));
+        Button::new(cx, |cx| cx.emit(SimEvent::Clk), |cx| Label::new(cx, "Clk"));
 
         let _sync = RegView::new(cx, SimState::pc_reg, 200.0, 200.0);
         // let _w1 = Wire::new(cx, 205.0, 200.0, 230.0, 200.0);
