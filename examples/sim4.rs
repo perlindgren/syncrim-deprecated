@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::marker::PhantomData;
+
+use syncrim::reg_view::RegView;
 use vizia::prelude::*;
 
 use syncrim::common::*;
@@ -25,36 +26,34 @@ struct ComponentStore {
     outputs: usize,
 }
 
-// #[derive(Lens, Debug, Clone)]
-// struct Comp<T: Clone + 'static> {
-//     output: Vec<u32>,
-//     _phantom: PhantomData<T>,
-// }
-
-#[derive(Lens, Debug)]
-pub struct SimState {
-    values: Vec<u32>,
-}
-
-impl Model for SimState {}
-
-use syncrim::reg_view::RegView;
-
-// struct Component<T> {
-//     ports: Ports,
-//     _phantom: PhantomData<T>,
-// }
-
-struct Mux {
-    ports: Ports,
-}
-
 trait Eval {
-    fn eval(&mut self, sim_state: &mut SimState);
+    fn clk(&mut self, sim_state: &mut SimState);
 }
 
-impl Eval for Mux {
-    fn eval(&mut self, sim_state: &mut SimState) {}
+struct MuxModel {
+    select: usize,
+    inputs: Vec<usize>,
+    output: usize,
+}
+
+impl Eval for MuxModel {
+    fn clk(&mut self, sim_state: &mut SimState) {
+        let select = sim_state.get(self.select);
+        let selected = sim_state.get(*self.inputs.get(select as usize).unwrap());
+        sim_state.set(self.output, selected);
+    }
+}
+
+struct RegModel {
+    input: usize,
+    output: usize,
+}
+
+impl Eval for RegModel {
+    fn clk(&mut self, sim_state: &mut SimState) {
+        let input = sim_state.get(self.input);
+        sim_state.set(self.output, input);
+    }
 }
 
 fn main() {
@@ -72,8 +71,11 @@ fn main() {
         component_type: ComponentType::Register,
         pos: Position { x: 80.0, y: 100.0 },
         opt_size: None,
-        inputs: vec![],
-        outputs: 2,
+        inputs: vec![Input {
+            id: "mux_1".to_string(),
+            index: 0,
+        }],
+        outputs: 1,
     };
 
     let components = vec![mux_1, reg_1];
@@ -87,18 +89,15 @@ fn main() {
         store.insert(c.id.clone(), c);
     }
 
-    // let mux2: Component<Mux> = serde_json::from_str(&serialized).unwrap();
-
-    // println!("mux deser {:?}", mux2);
-    // // assert!(hm.get("a") == Some(&0))
-
     let mut sim_state = SimState { values: vec![] };
-    let mut hm = HashMap::new();
+    let mut id_index = IdIndex(HashMap::new());
 
     // allocate storage for lensed outputs
     for c in components.clone() {
         // start index for outputs related to component
-        hm.insert(c.id.clone(), sim_state.values.len().clone());
+        id_index
+            .0
+            .insert(c.id.clone(), sim_state.values.len().clone());
         for _ in 0..c.outputs {
             sim_state.values.push(0);
         }
@@ -106,26 +105,35 @@ fn main() {
 
     // generate evaluators
     // let mut sim_eval = vec![];
+
+    let mut sim = vec![];
     for c in components.clone() {
         // start index for outputs related to component
-        let id = c.id;
-        let outputs_start_index = *hm.get(&id).unwrap();
+        let outputs_start_index = id_index.get_out_start(&c.id);
 
-        // hm.get(c.id);
-        let mut inputs = vec![];
-        for input in c.inputs {
-            let r = hm.get(&input.id).unwrap();
-            inputs.push(*r);
+        match c.component_type {
+            ComponentType::Register => {
+                let r = RegModel {
+                    input: id_index.get_in(c.inputs.get(0).unwrap()),
+                    output: outputs_start_index,
+                };
+                sim.push(r);
+            }
+            ComponentType::Mux => {}
+            ComponentType::Wire => {}
         }
-
-        let ports = Ports {
-            inputs,
-            outputs_start_index,
-        };
     }
 
     println!("sim_state {:?}", sim_state);
-    println!("hm {:?}", hm);
+
+    sim_state.set(0, 42);
+    println!("sim_state {:?}", sim_state);
+
+    for e in &mut sim {
+        e.clk(&mut sim_state);
+    }
+
+    println!("sim_state {:?}", sim_state);
 
     // allocate value space
 
