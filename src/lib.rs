@@ -1,4 +1,5 @@
-mod common;
+pub mod common;
+pub mod mux_view;
 mod port;
 pub mod reg;
 pub mod reg_view;

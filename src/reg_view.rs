@@ -2,6 +2,8 @@ use crate::port::{Port, PORT_SIZE};
 use vizia::prelude::*;
 use vizia::vg::{Paint, Path};
 
+use crate::common::Position;
+
 #[derive(Lens, Clone)]
 pub struct RegView<L: Lens> {
     lens: L,
@@ -11,7 +13,7 @@ impl<L: Lens> RegView<L>
 where
     <L as Lens>::Target: Data + Clone + ToString,
 {
-    pub fn new<'a>(cx: &'a mut Context, lens: L, x: f32, y: f32) -> Handle<'a, Self> {
+    pub fn new<'a>(cx: &'a mut Context, lens: L, pos: Position) -> Handle<'a, Self> {
         let half_width = PORT_SIZE;
         let half_hight = PORT_SIZE * 0.5;
 
@@ -23,8 +25,8 @@ where
             Label::new(cx, lens);
         })
         .position_type(PositionType::SelfDirected)
-        .left(Pixels(x - half_width))
-        .top(Pixels(y - half_hight))
+        .left(Pixels(pos.x - half_width))
+        .top(Pixels(pos.y - half_hight))
         .width(Pixels(half_width * 2.0))
         .height(Pixels(half_hight * 2.0))
     }
@@ -38,20 +40,20 @@ where
         Some("RegView")
     }
 
-    fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
-        let bounds = cx.bounds();
-        println!("Register draw {:?}", bounds);
+    // fn draw(&self, cx: &mut DrawContext<'_>, canvas: &mut Canvas) {
+    //     let bounds = cx.bounds();
+    //     println!("Register draw {:?}", bounds);
 
-        let mut path = Path::new();
-        let mut paint = Paint::color(vizia::vg::Color::rgbf(1.0, 0.0, 0.0));
-        paint.set_line_width(cx.logical_to_physical(1.0));
+    //     let mut path = Path::new();
+    //     let mut paint = Paint::color(vizia::vg::Color::rgbf(1.0, 0.0, 0.0));
+    //     paint.set_line_width(cx.logical_to_physical(1.0));
 
-        path.move_to(bounds.left() + 0.5, bounds.top() + 0.5);
-        path.line_to(bounds.right() + 0.5, bounds.top() + 0.5);
-        path.line_to(bounds.right() + 0.5, bounds.bottom() + 0.5);
-        path.line_to(bounds.left() + 0.5, bounds.bottom() + 0.5);
-        path.line_to(bounds.left() + 0.5, bounds.top() + 0.5);
+    //     path.move_to(bounds.left() + 0.5, bounds.top() + 0.5);
+    //     path.line_to(bounds.right() + 0.5, bounds.top() + 0.5);
+    //     path.line_to(bounds.right() + 0.5, bounds.bottom() + 0.5);
+    //     path.line_to(bounds.left() + 0.5, bounds.bottom() + 0.5);
+    //     path.line_to(bounds.left() + 0.5, bounds.top() + 0.5);
 
-        canvas.stroke_path(&mut path, &paint);
-    }
+    //     canvas.stroke_path(&mut path, &paint);
+    // }
 }
