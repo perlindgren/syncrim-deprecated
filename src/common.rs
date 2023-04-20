@@ -4,11 +4,21 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use vizia::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, Copy, Clone)]
+#[derive(Debug, Serialize, Deserialize, Copy, Clone, PartialEq, Eq)]
 pub enum ComponentType {
     Register,
     Mux,
     Wire,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ComponentStore {
+    pub id: String,
+    pub component_type: ComponentType,
+    pub pos: Position,
+    pub opt_size: Option<Size>,
+    pub inputs: Vec<Input>,
+    pub outputs: usize,
 }
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
@@ -36,7 +46,7 @@ impl IdIndex {
         *self.0.get(&input.id).unwrap() + input.index
     }
 
-    pub fn get_ins(&self, inputs: Vec<Input>) -> Vec<usize> {
+    pub fn get_ins(&self, inputs: &[Input]) -> Vec<usize> {
         inputs.iter().map(|i| self.get_in(i)).collect()
     }
 
@@ -45,7 +55,7 @@ impl IdIndex {
     }
 }
 
-#[derive(Lens, Debug)]
+#[derive(Lens, Debug, Clone)]
 pub struct SimState {
     pub values: Vec<u32>,
 }
@@ -62,3 +72,7 @@ impl SimState {
 }
 
 impl Model for SimState {}
+
+pub trait Eval {
+    fn clk(&mut self, curr_state: &SimState, next_state: &mut SimState);
+}
