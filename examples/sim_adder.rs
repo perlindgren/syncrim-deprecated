@@ -9,31 +9,34 @@ use syncrim::common::*;
 use syncrim::models::*;
 
 fn main() {
-    let reg_1 = ComponentStore {
-        id: "reg_1".to_string(),
-        component_type: ComponentType::Register,
-        pos: Position { x: 80.0, y: 100.0 },
+    let const_1 = ComponentStore {
+        id: "const_1".to_string(),
+        component_type: ComponentType::Constant,
+        pos: Position { x: 100.0, y: 100.0 },
         opt_size: None,
-        inputs: vec![Input {
-            id: "reg_2".to_string(),
-            index: 0,
-        }],
-        outputs: vec![Output::Synchronous],
+        inputs: vec![],
+        outputs: vec![Output::Constant(4)],
     };
 
-    let reg_2 = ComponentStore {
-        id: "reg_2".to_string(),
-        component_type: ComponentType::Register,
+    let add_1 = ComponentStore {
+        id: "add_1".to_string(),
+        component_type: ComponentType::Adder,
         pos: Position { x: 60.0, y: 100.0 },
         opt_size: None,
-        inputs: vec![Input {
-            id: "reg_1".to_string(),
-            index: 0,
-        }],
+        inputs: vec![
+            Input {
+                id: "add_1".to_string(),
+                index: 0,
+            },
+            Input {
+                id: "const_1".to_string(),
+                index: 0,
+            },
+        ],
         outputs: vec![Output::Synchronous],
     };
 
-    let components = vec![reg_1, reg_2];
+    let components = vec![const_1, add_1];
 
     let serialized = serde_json::to_string(&components).unwrap();
 
@@ -59,22 +62,22 @@ fn main() {
         for input in c.inputs {
             id_id.0.insert(c.id.clone(), input);
         }
-        for _ in c.outputs {
-            sim_state.values.push(0);
+        for output in c.outputs {
+            sim_state.values.push(match output {
+                Output::Constant(v) => v,
+                _ => 0,
+            });
         }
     }
 
+    println!("id_index {:?}", id_index);
     println!("id_id {:?}", id_id);
-
-    println!("sim_state {:?}", sim_state);
-
-    sim_state.set(0, 42);
-    sim_state.set(1, 43);
 
     println!("sim_state {:?}", sim_state);
 
     let mut sm = SimModel::try_from((components.clone(), &id_index)).unwrap();
 
+    println!("SimModel {:?}", sm.evaluators.len());
     let curr_state = sim_state.clone();
     let mut next_state = sim_state;
 
@@ -83,12 +86,12 @@ fn main() {
     println!("curr_state {:?}", curr_state);
     println!("next_state {:?}", next_state);
 
-    let curr_state = next_state.clone();
+    // let curr_state = next_state.clone();
 
-    sm.clk(&curr_state, &mut next_state);
+    // sm.clk(&curr_state, &mut next_state);
 
-    println!("curr_state {:?}", curr_state);
-    println!("next_state {:?}", next_state);
+    // println!("curr_state {:?}", curr_state);
+    // println!("next_state {:?}", next_state);
 
     // allocate value space
 

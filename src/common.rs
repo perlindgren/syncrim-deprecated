@@ -7,8 +7,17 @@ use vizia::prelude::*;
 #[derive(Debug, Serialize, Deserialize, Copy, Clone, PartialEq, Eq)]
 pub enum ComponentType {
     Register,
+    Constant,
+    Adder,
     Mux,
     Wire,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum Output {
+    Combinatorial,
+    Synchronous,
+    Constant(u32),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -18,7 +27,7 @@ pub struct ComponentStore {
     pub pos: Position,
     pub opt_size: Option<Size>,
     pub inputs: Vec<Input>,
-    pub outputs: usize,
+    pub outputs: Vec<Output>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Copy, Clone)]
@@ -39,7 +48,11 @@ pub struct Input {
     pub index: usize,
 }
 
+#[derive(Debug)]
 pub struct IdIndex(pub HashMap<String, usize>);
+
+#[derive(Debug)]
+pub struct IdId(pub HashMap<String, Input>);
 
 impl IdIndex {
     pub fn get_in(&self, input: &Input) -> usize {
